@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 import type { Skill, SkillUpdate } from '../types/Skill';
@@ -15,7 +16,7 @@ export default function SkillCard({ skill, onUpdate, onDelete }: SkillCardProps)
   return <article className="skill-card">
     {editing ? <><h3>Edit {skill.name}</h3><SkillForm initialValues={skill} onSubmit={data => { onUpdate(skill.id, data); setEditing(false); }} onCancel={() => setEditing(false)} /></> : <>
       <div className="card-heading"><span className="level">{skill.level}</span><span className={skill.completed ? 'status complete' : 'status'}>{skill.completed ? 'Completed' : 'In Progress'}</span></div>
-      <h3>{skill.name}</h3>
+      <h3><Link className="skill-details-link" to={'/skills/' + skill.id}>{skill.name}<span className="sr-only"> details</span></Link></h3>
       <div className="progress-label"><span>Learning progress</span><strong>{skill.progress}%</strong></div>
       <progress max={100} value={skill.progress} aria-label={skill.name + ' progress'} />
       <label className="range-label" htmlFor={'progress-' + skill.id}>Update progress</label>

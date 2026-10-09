@@ -1,5 +1,5 @@
 import { isSkillLevel } from '../types/Skill';
-import type { Skill } from '../types/Skill';
+import type { Skill, Topic } from '../types/Skill';
 
 export const STORAGE_KEY = 'developer-learning-tracker.skills';
 export const sampleSkills: Skill[] = [
@@ -18,6 +18,22 @@ function isSkill(value: unknown): value is Skill {
     && 'completed' in value && typeof value.completed === 'boolean';
 }
 
+function isTopic(value: unknown): value is Topic {
+  return typeof value === 'object' && value !== null
+    && 'id' in value && typeof value.id === 'number' && Number.isSafeInteger(value.id) && value.id > 0
+    && 'name' in value && typeof value.name === 'string' && value.name.trim().length > 0
+    && 'completed' in value && typeof value.completed === 'boolean';
+}
+
+function normalizeSkill(skill: Skill): Skill {
+  // Optional fields are checked independently, so old records remain valid.
+  const savedTopics: unknown = skill.topics;
+  const topics: Topic[] = Array.isArray(savedTopics) ? savedTopics.filter(isTopic) : [];
+  const uniqueTopics = topics.filter((topic, index) => topics.findIndex(item => item.id === topic.id) === index);
+  return { ...skill, name: skill.name.trim(), completed: skill.progress === 100,
+    topics: uniqueTopics, notes: typeof skill.notes === 'string' ? skill.notes : '' };
+}
+
 export function loadSkills(): Skill[] {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -26,7 +42,7 @@ export function loadSkills(): Skill[] {
     if (!Array.isArray(parsed) || !parsed.every(isSkill)) return sampleSkills;
     const skills: Skill[] = parsed;
     if (new Set(skills.map(skill => skill.id)).size !== skills.length) return sampleSkills;
-    return skills.map(skill => ({ ...skill, name: skill.name.trim(), completed: skill.progress === 100 }));
+    return skills.map(normalizeSkill);
   } catch {
     return sampleSkills;
   }
