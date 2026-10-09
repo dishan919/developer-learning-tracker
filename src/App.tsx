@@ -1,33 +1,21 @@
 import { Link, Route, Routes } from 'react-router-dom';
 import SkillDetails from './pages/SkillDetails';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { Skill, SkillFilter, SkillFormData, SkillUpdate, SortOption } from './types/Skill';
 import Dashboard from './components/Dashboard';
 import SkillForm from './components/SkillForm';
 import SkillList from './components/SkillList';
 import SkillFilters from './components/SkillFilters';
-import { loadSkills, STORAGE_KEY } from './utils/skillStorage';
+import { parseStoredSkills, sampleSkills, STORAGE_KEY } from './utils/skillStorage';
 import { sortSkills } from './utils/skillSorting';
+import { useLocalStorage } from './hooks/useLocalStorage';
 import './App.css';
 
 function App() {
-  const [skills, setSkills] = useState<Skill[]>(loadSkills);
+  const [skills, setSkills, storageError] = useLocalStorage<Skill[]>(STORAGE_KEY, sampleSkills, parseStoredSkills);
   const [search, setSearch] = useState<string>('');
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [filter, setFilter] = useState<SkillFilter>('All');
-  const [storageError, setStorageError] = useState<string>('');
-  useEffect(() => {
-    // Schedule the external write and report its result from the callback.
-    const timeout = window.setTimeout(() => {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(skills));
-        setStorageError('');
-      } catch {
-        setStorageError('Your browser could not save changes. You can keep using the tracker, but changes may be lost when you reload.');
-      }
-    }, 0);
-    return () => window.clearTimeout(timeout);
-  }, [skills]);
   function addSkill(data: SkillFormData) {
     setSkills(current => [...current, { ...data, id: Math.max(Date.now(), ...current.map(skill => skill.id + 1)), completed: data.progress === 100 }]);
   }

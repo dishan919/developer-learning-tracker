@@ -36,15 +36,20 @@ function normalizeSkill(skill: Skill): Skill {
     targetDate: typeof skill.targetDate === 'string' ? skill.targetDate : undefined };
 }
 
+// The hook handles JSON/storage errors; this parser owns skill validation and migration.
+export function parseStoredSkills(value: unknown): Skill[] {
+  if (!Array.isArray(value) || !value.every(isSkill)) throw new TypeError('Invalid stored skills');
+  const skills: Skill[] = value;
+  if (new Set(skills.map(skill => skill.id)).size !== skills.length) throw new TypeError('Duplicate skill IDs');
+  return skills.map(normalizeSkill);
+}
+
 export function loadSkills(): Skill[] {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === null) return sampleSkills;
     const parsed: unknown = JSON.parse(saved);
-    if (!Array.isArray(parsed) || !parsed.every(isSkill)) return sampleSkills;
-    const skills: Skill[] = parsed;
-    if (new Set(skills.map(skill => skill.id)).size !== skills.length) return sampleSkills;
-    return skills.map(normalizeSkill);
+    return parseStoredSkills(parsed);
   } catch {
     return sampleSkills;
   }
