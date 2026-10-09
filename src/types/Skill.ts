@@ -27,3 +27,8 @@ export const skillLevels: SkillLevel[] = ['Beginner', 'Intermediate', 'Advanced'
 export function isSkillLevel(value: unknown): value is SkillLevel {
   return value === 'Beginner' || value === 'Intermediate' || value === 'Advanced';
 }
+
+export type SortOption = 'name' | 'progress' | 'level' | 'targetDate';
+export function isSortOption(value: unknown): value is SortOption {
+  return value === 'name' || value === 'progress' || value === 'level' || value === 'targetDate';
+}
