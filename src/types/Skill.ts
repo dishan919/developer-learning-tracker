@@ -14,11 +14,13 @@ export interface Skill {
   completed: boolean;
   topics?: Topic[];
   notes?: string;
+  goal?: string;
+  targetDate?: string;
 }
 
 // The form only collects these three fields. App supplies identity and status.
 export type SkillFormData = Pick<Skill, 'name' | 'level' | 'progress'>;
-export type SkillUpdate = Partial<Pick<Skill, 'name' | 'level' | 'progress' | 'topics' | 'notes'>>;
+export type SkillUpdate = Partial<Pick<Skill, 'name' | 'level' | 'progress' | 'topics' | 'notes' | 'goal' | 'targetDate'>>;
 export type SkillFilter = 'All' | SkillLevel | 'Completed' | 'In Progress';
 
 export const skillLevels: SkillLevel[] = ['Beginner', 'Intermediate', 'Advanced'];

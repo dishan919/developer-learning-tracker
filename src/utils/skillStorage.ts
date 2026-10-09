@@ -31,7 +31,9 @@ function normalizeSkill(skill: Skill): Skill {
   const topics: Topic[] = Array.isArray(savedTopics) ? savedTopics.filter(isTopic) : [];
   const uniqueTopics = topics.filter((topic, index) => topics.findIndex(item => item.id === topic.id) === index);
   return { ...skill, name: skill.name.trim(), completed: skill.progress === 100,
-    topics: uniqueTopics, notes: typeof skill.notes === 'string' ? skill.notes : '' };
+    topics: uniqueTopics, notes: typeof skill.notes === 'string' ? skill.notes : '',
+    goal: typeof skill.goal === 'string' ? skill.goal : undefined,
+    targetDate: typeof skill.targetDate === 'string' ? skill.targetDate : undefined };
 }
 
 export function loadSkills(): Skill[] {

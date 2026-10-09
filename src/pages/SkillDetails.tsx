@@ -5,6 +5,8 @@ import type { Skill, SkillUpdate, Topic } from '../types/Skill';
 import SkillForm from '../components/SkillForm';
 import TopicForm from '../components/TopicForm';
 import TopicList from '../components/TopicList';
+import LearningGoalForm from '../components/LearningGoalForm';
+import { getGoalDetails } from '../utils/goalStatus';
 interface SkillDetailsProps {
   skills: Skill[];
   onUpdate: (id: Skill['id'], updates: SkillUpdate) => void;
@@ -23,6 +25,7 @@ function SkillDetailsContent({ skill, onUpdate }: SkillDetailsContentProps) {
   const [notes, setNotes] = useState<string>(skill.notes ?? '');
   const [saved, setSaved] = useState<boolean>(false);
   const [editing, setEditing] = useState<boolean>(false);
+  const { status, targetDate, daysRemaining } = getGoalDetails(skill);
   const topics = skill.topics ?? [];
   const completed = topics.filter(topic => topic.completed).length;
   const percentage = topics.length ? Math.round(completed / topics.length * 100) : 0;
@@ -47,7 +50,16 @@ function SkillDetailsContent({ skill, onUpdate }: SkillDetailsContentProps) {
       {editing ? <SkillForm initialValues={skill} onSubmit={data => { onUpdate(skill.id, data); setEditing(false); }} onCancel={() => setEditing(false)} /> : <button type="button" onClick={() => setEditing(true)}>Edit Skill</button>}
     </section>
     <div className="details-grid"><section className="details-panel"><h2>Topics</h2><div className="progress-label"><span>{completed} of {topics.length} topics completed</span><strong>{percentage}%</strong></div><progress max={100} value={percentage} aria-label="Topic completion" /><p className="topic-help">Topic completion is tracked separately from skill progress.</p><TopicList topics={topics} onToggle={toggleTopic} onDelete={deleteTopic} /><TopicForm onAdd={addTopic} /></section>
-      <section className="details-panel"><h2>Learning Notes</h2><form onSubmit={saveNotes}><label htmlFor="learning-notes" className="muted">Capture what you learned and what to practice next.</label><textarea id="learning-notes" rows={9} value={notes} onChange={handleNotes} placeholder="Need more practice with Generics…" /><button className="primary" type="submit">Save Notes</button><p className="notes-status" role="status">{saved ? 'Notes saved to this skill.' : notes !== (skill.notes ?? '') ? 'Unsaved changes' : ''}</p></form></section>
+      <section className="details-panel goal-panel"><h2>Learning Goal</h2>
+        <p className="goal-text">{skill.goal || 'No learning goal yet.'}</p>
+        <dl className="goal-summary"><div><dt>Target Date</dt><dd>{targetDate
+          ? <time dateTime={skill.targetDate}>{targetDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</time>
+          : skill.targetDate ? 'Invalid target date — choose a new date below.' : 'No target date set'}</dd></div>
+          <div><dt>Status</dt><dd><span className={status === 'Completed' ? 'status complete' : 'status'}>{status}</span></dd></div></dl>
+        {daysRemaining !== undefined && daysRemaining > 0 && <p className="muted">{daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} remaining</p>}
+        <LearningGoalForm goal={skill.goal} targetDate={skill.targetDate} onSave={data => onUpdate(skill.id, data)} />
+      </section>
+      <section className="details-panel notes-panel"><h2>Learning Notes</h2><form onSubmit={saveNotes}><label htmlFor="learning-notes" className="muted">Capture what you learned and what to practice next.</label><textarea id="learning-notes" rows={9} value={notes} onChange={handleNotes} placeholder="Need more practice with Generics…" /><button className="primary" type="submit">Save Notes</button><p className="notes-status" role="status">{saved ? 'Notes saved to this skill.' : notes !== (skill.notes ?? '') ? 'Unsaved changes' : ''}</p></form></section>
     </div>
   </div>;
 }
