@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function NotFound() {
+  useDocumentTitle('Developer Learning Tracker | Page Not Found');
   return <section className="not-found" aria-labelledby="not-found-title">
     <p className="not-found-code">404</p>
     <h2 id="not-found-title">Page Not Found</h2>

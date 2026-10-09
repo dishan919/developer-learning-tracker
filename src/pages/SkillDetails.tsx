@@ -7,6 +7,7 @@ import TopicForm from '../components/TopicForm';
 import TopicList from '../components/TopicList';
 import LearningGoalForm from '../components/LearningGoalForm';
 import { getGoalDetails } from '../utils/goalStatus';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 interface SkillDetailsProps {
   skills: Skill[];
   onUpdate: (id: Skill['id'], updates: SkillUpdate) => void;
@@ -16,6 +17,10 @@ export default function SkillDetails({ skills, onUpdate }: SkillDetailsProps) {
   const skillId = id && /^[1-9]\d*$/.test(id) ? Number(id) : undefined;
   const skill = skillId !== undefined && Number.isSafeInteger(skillId)
     ? skills.find(item => item.id === skillId) : undefined;
+  const pageTitle = skill
+    ? `Developer Learning Tracker | ${skill.name}`
+    : 'Developer Learning Tracker | Skill Not Found';
+  useDocumentTitle(pageTitle);
   if (!skill) return <section className="empty-state"><h2>Skill not found</h2><p>This skill may have been deleted, or the link may be incorrect.</p><Link to="/">← Back to Dashboard</Link></section>;
   // Reset local edit drafts when navigating directly between two skills.
   return <SkillDetailsContent key={skill.id} skill={skill} onUpdate={onUpdate} />;
