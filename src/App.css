@@ -51,3 +51,9 @@ textarea { display: block; width: 100%; resize: vertical; font: inherit; border:
 .sort-control label { font-size: 12px; color: #66748a; white-space: nowrap; }
 .sort-control select { width: auto; flex: 1; max-width: 220px; }
 .stat:nth-child(4) strong { color: #4263eb; }
+
+.not-found { text-align: center; background: white; border: 1px solid #e3e8f0; border-radius: 12px; padding: clamp(36px, 7vw, 72px) 24px; }
+.not-found-code { color: #4263eb; font-size: clamp(80px, 16vw, 128px); font-weight: 800; line-height: 1; letter-spacing: -4px; margin-bottom: 20px; }
+.not-found h2 { font-size: clamp(24px, 4vw, 30px); margin-bottom: 12px; }
+.not-found-message { max-width: 360px; margin: 0 auto 28px; color: #758197; }
+.not-found-link { display: inline-block; border: 1px solid #4263eb; border-radius: 8px; padding: 12px 20px; font-weight: 600; text-decoration: none; }

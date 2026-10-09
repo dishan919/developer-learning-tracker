@@ -1,5 +1,6 @@
-import { Link, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import SkillDetails from './pages/SkillDetails';
+import NotFound from './pages/NotFound';
 import { useState } from 'react';
 import type { Skill, SkillFilter, SkillFormData, SkillUpdate, SortOption } from './types/Skill';
 import Dashboard from './components/Dashboard';
@@ -45,7 +46,7 @@ function App() {
     <Routes><Route path="/" element={<><Dashboard skills={skills} />
     <div className="workspace"><aside className="add-panel"><h2>Add a new skill</h2><p>What will you learn next?</p><SkillForm onSubmit={addSkill} /><div className="tip">Small steps add up.<br />Make time to learn something today.</div></aside>
       <section className="collection" aria-labelledby="skills-title"><div className="section-heading"><h2 id="skills-title">My skills</h2><span>{visibleSkills.length} of {skills.length} skills</span></div><SkillFilters search={search} filter={filter} onSearch={setSearch} onFilter={setFilter} sortBy={sortBy} onSort={setSortBy} /><SkillList skills={visibleSkills} hasSkills={skills.length > 0} onUpdate={updateSkill} onDelete={deleteSkill} /></section>
-    </div></>} /><Route path="/skills/:id" element={<SkillDetails skills={skills} onUpdate={updateSkill} />} /><Route path="*" element={<div className="empty-state"><h2>Page not found</h2><Link to="/">Back to Dashboard</Link></div>} /></Routes><footer>One skill at a time, one step closer.</footer>
+    </div></>} /><Route path="/skills/:id" element={<SkillDetails skills={skills} onUpdate={updateSkill} />} /><Route path="*" element={<NotFound />} /></Routes><footer>One skill at a time, one step closer.</footer>
   </main>;
 }
 export default App;
