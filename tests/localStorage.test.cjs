@@ -264,3 +264,93 @@ test('details route retains topics, notes, goals, dates and route validation', (
   assert.ok(render('/skills/invalid').includes('Skill not found'));
   assert.ok(render('/skills/999').includes('Skill not found'));
 });
+
+// Exercise metadata effects against a minimal head DOM, using the real pages/hooks.
+function metadataDocument() {
+  const previous = global.document;
+  const elements = [];
+  global.document = {
+    title: '',
+    head: {
+      querySelector(selector) {
+        assert.equal(selector, 'meta[name="description"]');
+        return elements.find(element => element.name === 'description') ?? null;
+      },
+      appendChild(element) { elements.push(element); },
+    },
+    createElement(tag) { assert.equal(tag, 'meta'); return { name: '', content: '' }; },
+  };
+  return {
+    elements,
+    close() { if (previous === undefined) delete global.document; else global.document = previous; },
+  };
+}
+
+test('description hook creates once, reuses existing tag, updates dependencies and tolerates effect replay', () => {
+  const h = metadataDocument();
+  let previousDeps;
+  let setup;
+  const metadataLoad = sourceLoader({ ...React, useEffect(callback, deps) {
+    if (!previousDeps || deps.some((value, index) => value !== previousDeps[index])) {
+      previousDeps = deps;
+      setup = callback;
+      callback();
+    }
+  } });
+  const { useMetaDescription } = metadataLoad('hooks/useMetaDescription.ts');
+  try {
+    useMetaDescription('Dashboard');
+    const original = h.elements[0];
+    setup();
+    useMetaDescription('React details');
+    assert.equal(original.content, 'React details');
+    assert.equal(h.elements.length, 1);
+    assert.equal(h.elements[0], original);
+    useMetaDescription('Dashboard');
+    assert.equal(original.content, 'Dashboard');
+    const html = fs.readFileSync(path.resolve(__dirname, '../index.html'), 'utf8');
+    assert.equal((html.match(/<meta\s+name="description"/g) ?? []).length, 1);
+  } finally { h.close(); }
+});
+
+test('route pages update one description and retain their dynamic titles', () => {
+  const h = metadataDocument();
+  const metadataLoad = sourceLoader({ ...React, useEffect(callback) { callback(); } });
+  const Dashboard = metadataLoad('components/Dashboard.tsx').default;
+  const SkillDetails = metadataLoad('pages/SkillDetails.tsx').default;
+  const NotFound = metadataLoad('pages/NotFound.tsx').default;
+  const { Routes, Route } = require('react-router-dom');
+  const skills = ['React', 'TypeScript', 'Docker', 'React <Advanced> & "Hooks"'].map((name, index) => ({ ...legacy, id: index + 1, name }));
+  function render(url, currentSkills = skills) {
+    renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [url] },
+      React.createElement(Routes, null,
+        React.createElement(Route, { path: '/', element: React.createElement(Dashboard, { skills: currentSkills }) }),
+        React.createElement(Route, { path: '/skills/:id', element: React.createElement(SkillDetails, { skills: currentSkills, onUpdate() {} }) }),
+        React.createElement(Route, { path: '*', element: React.createElement(NotFound) }))));
+  }
+  function check(title, description) {
+    assert.equal(global.document.title, 'Developer Learning Tracker | ' + title);
+    assert.equal(h.elements.length, 1);
+    assert.equal(h.elements[0].content, description);
+  }
+  try {
+    render('/');
+    check('Dashboard', 'Track developer skills, monitor learning progress, manage goals, and organize your development journey.');
+    const original = h.elements[0];
+    for (const skill of skills) {
+      render('/skills/' + skill.id);
+      check(skill.name, `View your ${skill.name} learning progress, topics, notes, goals, and target date.`);
+    }
+    render('/skills/1', [{ ...skills[0], name: 'Renamed React' }]);
+    check('Renamed React', 'View your Renamed React learning progress, topics, notes, goals, and target date.');
+    for (const id of ['99999', 'invalid', '0', '9007199254740992']) {
+      render('/skills/' + id);
+      check('Skill Not Found', 'The requested skill could not be found in Developer Learning Tracker.');
+    }
+    render('/unknown');
+    check('Page Not Found', 'The requested page could not be found in Developer Learning Tracker.');
+    render('/');
+    check('Dashboard', 'Track developer skills, monitor learning progress, manage goals, and organize your development journey.');
+    assert.equal(h.elements[0], original);
+  } finally { h.close(); }
+});

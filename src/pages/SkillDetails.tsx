@@ -8,6 +8,7 @@ import TopicList from '../components/TopicList';
 import LearningGoalForm from '../components/LearningGoalForm';
 import { getGoalDetails } from '../utils/goalStatus';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useMetaDescription } from '../hooks/useMetaDescription';
 interface SkillDetailsProps {
   skills: Skill[];
   onUpdate: (id: Skill['id'], updates: SkillUpdate) => void;
@@ -21,6 +22,10 @@ export default function SkillDetails({ skills, onUpdate }: SkillDetailsProps) {
     ? `Developer Learning Tracker | ${skill.name}`
     : 'Developer Learning Tracker | Skill Not Found';
   useDocumentTitle(pageTitle);
+  const description = skill
+    ? `View your ${skill.name} learning progress, topics, notes, goals, and target date.`
+    : 'The requested skill could not be found in Developer Learning Tracker.';
+  useMetaDescription(description);
   if (!skill) return <section className="empty-state"><h2>Skill not found</h2><p>This skill may have been deleted, or the link may be incorrect.</p><Link to="/">← Back to Dashboard</Link></section>;
   // Reset local edit drafts when navigating directly between two skills.
   return <SkillDetailsContent key={skill.id} skill={skill} onUpdate={onUpdate} />;
