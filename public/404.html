@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Developer Learning Tracker</title>
+    <script>
+      // This is a GitHub Pages project site: the first path segment is the repository.
+      // Derive that mount point so the repository name is configured only in Vite.
+      const base = '/' + window.location.pathname.split('/')[1] + '/';
+      if (window.location.pathname !== base && window.location.pathname !== base + '404.html') {
+        const route = window.location.pathname + window.location.search + window.location.hash;
+        window.location.replace(base + '?__spa=' + encodeURIComponent(route));
+      }
+    </script>
+  </head>
+  <body><p>Returning to Developer Learning Tracker. JavaScript is required to open this route.</p></body>
+</html>

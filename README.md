@@ -147,3 +147,11 @@ GitHub: https://github.com/dishan919
 ## License
 
 No license has currently been specified in this repository.
+
+## GitHub Pages routing
+
+Production builds use `/developer-learning-tracker/` from `vite.config.ts` for assets and the BrowserRouter basename. Development uses `/`, so `npm run dev` supports `/` and `/skills/1` without a repository prefix.
+
+GitHub Pages serves the built `404.html` for a missing nested URL. That document derives the project mount point from the first URL path segment and redirects to the app root with the full original path, query, and hash encoded in the reserved `__spa` query parameter. Before React mounts, `restoreSpaRoute` validates the destination and uses `history.replaceState` to restore it within the same origin and configured base. The React wildcard route still displays the existing custom 404 for unknown application paths. This is a client-side redirect, not a server rewrite; JavaScript must be enabled.
+
+After deploying, check the dashboard at `https://dishan919.github.io/developer-learning-tracker/`, navigate to an existing skill, refresh its URL, and open that URL in a new tab. Check `/developer-learning-tracker/this-page-does-not-exist` directly and confirm the React 404 and dashboard link. Also try `/developer-learning-tracker/skills/1?check=a%26b#notes` and confirm its query and hash survive. Skill 1 must exist in that browser's saved data to show details; otherwise the existing Skill Not Found page is expected.

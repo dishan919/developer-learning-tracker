@@ -354,3 +354,24 @@ test('route pages update one description and retain their dynamic titles', () =>
     assert.equal(h.elements[0], original);
   } finally { h.close(); }
 });
+
+test('production basename matches dashboard, details, and custom 404 and prefixes links', () => {
+  const { Routes, Route } = require('react-router-dom');
+  const Dashboard = load('components/Dashboard.tsx').default;
+  const SkillDetails = load('pages/SkillDetails.tsx').default;
+  const NotFound = load('pages/NotFound.tsx').default;
+  function render(route, basename = '/developer-learning-tracker') {
+    return renderToStaticMarkup(React.createElement(MemoryRouter, { basename, initialEntries: [route] },
+      React.createElement(Routes, null,
+        React.createElement(Route, { path: '/', element: React.createElement(Dashboard, { skills: [legacy] }) }),
+        React.createElement(Route, { path: '/skills/:id', element: React.createElement(SkillDetails, { skills: [legacy], onUpdate() {} }) }),
+        React.createElement(Route, { path: '*', element: React.createElement(NotFound) }))));
+  }
+  assert.ok(render('/developer-learning-tracker/').includes('Learning overview'));
+  const details = render('/developer-learning-tracker/skills/1');
+  assert.ok(details.includes('Skill progress'));
+  assert.ok(details.includes('href="/developer-learning-tracker"'));
+  assert.ok(render('/developer-learning-tracker/this-page-does-not-exist').includes('Page Not Found'));
+  assert.ok(render('/', '/').includes('Learning overview'));
+  assert.ok(render('/skills/1', '/').includes('Skill progress'));
+});
