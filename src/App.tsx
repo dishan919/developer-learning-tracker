@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import SkillForm from './components/SkillForm';
 import SkillList from './components/SkillList';
 import SkillFilters from './components/SkillFilters';
+import ThemeToggle from './components/ThemeToggle';
 import { parseStoredSkills, sampleSkills, STORAGE_KEY } from './utils/skillStorage';
 import { sortSkills } from './utils/skillSorting';
 import { useLocalStorage } from './hooks/useLocalStorage';
@@ -41,7 +42,7 @@ function App() {
   });
   const visibleSkills = sortSkills(filteredSkills, sortBy);
   return <main className="app">
-    <header className="page-header"><div className="brand"><span aria-hidden="true">&lt;/&gt;</span> DEV JOURNEY</div><p className="eyebrow">A LITTLE PROGRESS, EVERY DAY</p><h1>Developer Learning Tracker</h1><p>Build your skills. Track your progress. Keep moving forward.</p></header>
+    <header className="page-header"><ThemeToggle /><div className="brand"><span aria-hidden="true">&lt;/&gt;</span> DEV JOURNEY</div><p className="eyebrow">A LITTLE PROGRESS, EVERY DAY</p><h1>Developer Learning Tracker</h1><p>Build your skills. Track your progress. Keep moving forward.</p></header>
     {storageError && <p role="alert" className="storage-error">{storageError}</p>}
     <Routes><Route path="/" element={<><Dashboard skills={skills} />
     <div className="workspace"><aside className="add-panel"><h2>Add a new skill</h2><p>What will you learn next?</p><SkillForm onSubmit={addSkill} /><div className="tip">Small steps add up.<br />Make time to learn something today.</div></aside>
